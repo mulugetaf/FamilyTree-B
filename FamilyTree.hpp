@@ -24,18 +24,17 @@ public:
     Tree(string name);
     Tree();
     Node *root;
-    Node *helpfind(Node* r,string name);
+    Node *helpfind(Node *r, string name);
     Tree &addFather(string name1, string name2);
     Tree &addMother(string name1, string name2);
     string relation(string name);
     string find(string name);
     void remove(string name);
     void display();
-    void inorder(Node *P);
-    void delete_node(Node* r,string name);
-    void deleteTree(Node* r) ;
-    int getLevelUtil(Node *root,string name, int level); 
-    int getLevel(Node *node , string data); 
+    void print2DUtil(Node *root, int space);
+    void deleteTree(Node *r);
+    int getLevelUtil(Node *root, string name, int level);
+    int getLevel(Node *node, string data);
 };
 
-}; // namespace family
+};

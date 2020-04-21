@@ -2,10 +2,14 @@
 #include <string>
 #include <iostream>
 #include <stdexcept>
-#include <stdbool.h>
 #include <iomanip>
 using namespace std;
 using namespace family;
+/*
+findNode function
+search node name in the tree and return 
+node pointer
+*/
 Node *findNode(Node *r, string child_name)
 {
   string s = "";
@@ -37,14 +41,14 @@ add father to given node name
 */
 family::Tree &Tree::addFather(string child, string father)
 {
-  Node* child_found = findNode(root, child);
+  Node *child_found = findNode(root, child);
   if (child_found->name == "")
   {
     throw std::invalid_argument("child not found");
   }
   else if (child_found->father != NULL)
   {
-    throw std::invalid_argument("father allready inserted");
+    throw std::invalid_argument("already has a father");
   }
   else
   {
@@ -64,14 +68,14 @@ add mother to given node name
 
 family::Tree &Tree::addMother(string child, string mother)
 {
-  Node* child_found = findNode(root, child);
+  Node *child_found = findNode(root, child);
   if (child_found->name == "")
   {
     throw std::invalid_argument("child not found");
   }
   else if (child_found->mother != NULL)
   {
-    throw std::invalid_argument("mother allready inserted");
+    throw std::invalid_argument("already has a mother");
   }
   else
   {
@@ -82,13 +86,52 @@ family::Tree &Tree::addMother(string child, string mother)
   }
 };
 
-//display print all nodes and parent
+/*
+display
+using print2DUtil function to print 
+all tree
+*/
 void family::Tree::display()
 {
-  inorder(root);
+  print2DUtil(root, 0);
 };
+/*
+print2DUtil
+ Function to print binary tree in 2D  
+ It does reverse inorder traversal 
+ source: https://www.geeksforgeeks.org/print-binary-tree-2-dimensions/
+*/
+void family::Tree::print2DUtil(Node *root, int space)
+{
+  // Base case
+  if (root == NULL)
+    return;
 
-//add realtion
+  // Increase distance between levels
+  space += 10;
+
+  // Process right child first
+  print2DUtil(root->father, space);
+
+  // Print current node after space
+  // count
+  cout << endl;
+  for (int i = 10; i < space; i++)
+    cout << " ";
+  cout << root->name << "\n";
+
+  // Process left child
+  print2DUtil(root->mother, space);
+}
+
+/*
+  relation
+  by givin node name
+  search name in the tree and 
+  returns - his relation to the root
+  if givin name not in the tree
+  return - unrelated
+*/
 string family::Tree::relation(string name)
 {
   string father = "father";
@@ -158,6 +201,14 @@ string family::Tree::relation(string name)
   }
   return "unrelated";
 }
+/*
+  find
+  The opposite function
+  by givin relation search node in the tree maintains relation
+  using helpfind function
+  return - node name from the tree that maintains relation.
+  throw exception - if there is no node maintains relation. 
+ */
 string family::Tree::find(string name)
 {
   Node *ans = helpfind(root, name);
@@ -167,12 +218,16 @@ string family::Tree::find(string name)
   }
   else
   {
-    throw std::invalid_argument(name +" not found in the tree");
+    throw std::invalid_argument(name + " not found in the tree");
   }
-  
+
   return "";
 };
-
+/*
+  helpfind
+  return - node pointer that maintains givin 
+  name relation
+  */
 Node *family::Tree::helpfind(Node *r, string name)
 {
   string s = "";
@@ -198,18 +253,30 @@ Node *family::Tree::helpfind(Node *r, string name)
 
   return res2;
 };
+/*
+  remove
+  remove givin node from the tree and
+  all parents.
+  using deleteTree function to delete all parents.
+  throw exception - if there is no node maintains givin name. 
+*/
 void family::Tree::remove(string name)
 {
   Node *toremove = findNode(root, name);
-  if(toremove->name == "")
+  if (toremove->name == "")
   {
-  throw std::invalid_argument(name +" not found in the tree");
+    throw std::invalid_argument(name + " not found in the tree");
   }
-  if(toremove->name == root->name){
-    throw std::invalid_argument(name +" is root");
+  if (toremove->name == root->name)
+  {
+    throw std::invalid_argument(name + " is root");
   }
   deleteTree(toremove);
 };
+/*
+  deleteTree
+  delete node and all parents.
+*/
 void family::Tree::deleteTree(Node *node)
 {
   if (node == NULL)
@@ -220,44 +287,7 @@ void family::Tree::deleteTree(Node *node)
   deleteTree(node->father);
 
   /* then delete the node */
-  cout << "\n Deleting node: " << node->name << endl;
   free(node);
-};
-//Node constructor
-family::Node::Node(string Node_name)
-{
-  name = Node_name;
-  father = NULL;
-  mother = NULL;
-};
-//Node
-family::Node::Node()
-{
-  name = nullptr;
-  father = nullptr;
-  mother = nullptr;
-};
-
-// Tree C‫‪onstructor‬‬
-family::Tree::Tree(string name)
-{
-  root = new Node(name);
-};
-//defualt
-family::Tree::Tree()
-{
-  root = NULL;
-};
-//print all nodes
-void ::family::Tree::inorder(Node *p)
-{
-  if (p != NULL)
-  {
-    inorder(p->mother);
-    cout << p->name << " ";
-    inorder(p->father);
-  }
-  return;
 };
 
 /* Helper function for getLevel().  
@@ -284,51 +314,28 @@ int family::Tree::getLevel(Node *node, string data)
 {
   return getLevelUtil(node, data, 1);
 }
-/*
-int main()
+//Node constructor
+family::Node::Node(string Node_name)
 {
-  Tree T("Yosef");
-  T.addFather("Yosef", "Yaakov")    // Tells the tree that the father of Yosef is Yaakov.
-      .addMother("Yosef", "Rachel") // Tells the tree that the mother of Yosef is Rachel.
-      .addFather("Yaakov", "Isaac")
-      .addMother("Yaakov", "Rivka")
-      .addFather("Isaac", "Avraham")
-      .addFather("Avraham", "Terah");
+  name = Node_name;
+  father = NULL;
+  mother = NULL;
+};
+//defualt Node C‫‪onstructor‬‬
+family::Node::Node()
+{
+  name = nullptr;
+  father = nullptr;
+  mother = nullptr;
+};
 
-  cout << T.relation("Yaakov") << endl;
-  cout << T.relation("Rachel") << endl;
-  cout << T.relation("Isaac") << endl;
-  cout << T.relation("Rivka") << endl;
-  cout << T.relation("Avraham") << endl;
-  cout << T.relation("Terah") << endl;
-
-  //cout << T.relation("Rachel") << endl;
-   //T.remove("Yosef");
-   T.remove(" ");
-  // cout << T.relation("Yaakov") << endl;
-  // cout << T.relation("Rachel") << endl;
-  // cout << T.relation("Rivka") << endl;
-  // cout << T.relation("Isaac") << endl;
-  // cout << T.relation("Avraham") << endl;
-  // // cout << T.relation("Terah") << endl;
-  // T.remove("Isaac");
-  // T.remove("Rivka");
-  // T.remove("Avraham");
-  // T.remove("Terah");
-
-  // cout << endl;
-  // cout << endl;
-  // cout << endl;
-  // cout << T.find("mother") << endl;
-  // cout << T.find("grandfather") << endl;
-  // cout << T.find("grandmother") << endl;
-  // cout << T.find("great-grandfather") << endl;
-  // cout << T.find("great-grandmother") << endl;
-  // cout << T.find("great-great-grandfather") << endl;
-  // cout << T.find("great-great-great-grandmother") << endl;
-  // cout << T.find("great-great-great-grandfather") << endl;
-  // cout << T.find("great-great-great-grandfather") << endl;
-
-  return 0;
-}
-*/
+// Tree C‫‪onstructor‬‬
+family::Tree::Tree(string name)
+{
+  root = new Node(name);
+};
+//defualt Tree Constructor
+family::Tree::Tree()
+{
+  root = NULL;
+};
